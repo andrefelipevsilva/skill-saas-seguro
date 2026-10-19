@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relatório de segurança · clinica-facil (app de exemplo)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#0B0D0C;--panel:#121513;--panel2:#171B18;--line:#242A26;--fg:#EEF0EA;--body:#C9CEC6;--muted:#8E968E;--faint:#5D655E;
+  --lime:#C8F560;--ink:#0B0D0C;--amber:#F2B84B;--coral:#FF7A6B;--red:#FF4D4D;
+  --sans:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;--mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font:15px/1.6 var(--sans)}
+.wrap{max-width:980px;margin:0 auto;padding:40px max(16px,4vw) 64px;display:flex;flex-direction:column;gap:40px}
+a{color:var(--lime)}
+.brand{font:500 13px var(--mono);color:var(--muted)} .brand b{color:var(--lime);font-weight:500}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;letter-spacing:-.035em;margin:10px 0 6px;font-weight:800}
+h1 span{color:var(--lime)}
+h2{font-size:24px;letter-spacing:-.02em;margin:0 0 6px;display:flex;align-items:baseline;gap:12px}
+h2 small{font:500 12px var(--mono);color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.sub{color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{font:500 12px var(--mono);color:var(--body);border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 10px}
+.hero{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px}
+.ring{position:relative;width:132px;height:132px}
+.ring svg{transform:rotate(-90deg)}
+.ring .n{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .n b{font-size:38px;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.ring .n span{font:500 11px var(--mono);color:var(--muted);margin-top:4px}
+.resumo-hero h2{margin-bottom:4px}
+.contagens{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.cont{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.cont b{display:block;font-size:26px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.cont span{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.08em}
+.cont.critico span{color:var(--red)} .cont.alto span{color:var(--coral)} .cont.medio span{color:var(--amber)} .cont.baixo span{color:var(--muted)}
+.check-resumo{margin:14px 0 0;color:var(--body);font-size:14px}
+.prioridade{list-style:none;margin:16px 0 0;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel)}
+.prioridade li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:12px;align-items:baseline;padding:12px 16px;border-bottom:1px solid var(--line)}
+.prioridade li:last-child{border-bottom:0}
+.prioridade .cod{font:500 12px var(--mono);color:var(--muted)}
+.prioridade .t{min-width:0} .prioridade .t small{display:block;font:12px var(--mono);color:var(--muted);overflow-wrap:anywhere}
+.badge{display:inline-block;font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;border-radius:6px;padding:3px 8px;white-space:nowrap}
+.badge.critico{background:var(--red);color:#1a0505} .badge.alto{background:var(--coral);color:#1a0806} .badge.medio{background:var(--amber);color:#1a1205} .badge.baixo{background:var(--line);color:var(--body)}
+.badge.revisar{background:transparent;border:1px solid var(--amber);color:var(--amber)}
+.area{display:flex;flex-direction:column;gap:14px}
+.area>h3{font:500 12px var(--mono);color:var(--lime);letter-spacing:.12em;text-transform:uppercase;margin:12px 0 0}
+.achado{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;flex-direction:column;gap:12px;break-inside:avoid}
+.achado.sev-critico{border-left-color:var(--red)} .achado.sev-alto{border-left-color:var(--coral)} .achado.sev-medio{border-left-color:var(--amber)}
+.achado header{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.achado .cod{font:500 12px var(--mono);color:var(--muted)}
+.achado h3{margin:0;font-size:19px;letter-spacing:-.015em;line-height:1.3}
+.resumo{margin:0;color:var(--body)}
+.bloco p{margin:0;color:var(--body)}
+.lab{font:500 11px var(--mono);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ev{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ev li{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.loc{font:12px var(--mono);color:var(--body);overflow-wrap:anywhere} .loc b{color:var(--lime);font-weight:500} .loc i{color:var(--muted);font-style:normal}
+.ev code{font:12px/1.5 var(--mono);color:#D6DBD3;white-space:pre-wrap;overflow-wrap:anywhere}
+.mais{font-size:13px;color:var(--muted);margin:6px 0 0}
+.passos{margin:0;padding-left:20px;color:var(--body);display:flex;flex-direction:column;gap:4px}
+.passos li::marker{color:var(--lime);font-family:var(--mono)}
+.prompt{background:var(--panel2);border:1px solid #2E3A1E;border-radius:10px;padding:12px 14px;break-inside:avoid}
+.prompt .lab{color:var(--lime)}
+.prompt p{margin:0;color:var(--fg);font-size:14px}
+.copiar{font:500 11px var(--mono);background:transparent;color:var(--lime);border:1px solid var(--lime);border-radius:6px;padding:3px 8px;cursor:pointer}
+.copiar:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.nota{margin:0;font-size:13px;color:var(--amber);background:rgba(242,184,75,.07);border:1px solid rgba(242,184,75,.25);border-radius:8px;padding:8px 10px}
+.manuais{list-style:none;margin:16px 0 0;padding:0;border-top:1px solid var(--line)}
+.manuais li{display:grid;grid-template-columns:18px 44px minmax(0,1fr);gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
+.box{width:16px;height:16px;border:1.5px solid var(--lime);border-radius:4px;margin-top:3px}
+.manuais .id{font:500 12px var(--mono);color:var(--muted);padding-top:2px}
+.manuais b{display:block;font-weight:600} .manuais span{color:var(--body);font-size:14px}
+.tabela{overflow-x:auto;margin-top:16px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;font:500 11px var(--mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--body);vertical-align:top}
+tr:last-child td{border-bottom:0} tr{break-inside:avoid}
+td.id{font:500 12px var(--mono);color:var(--muted);white-space:nowrap}
+.st{font:600 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;border-radius:6px;padding:2px 7px;white-space:nowrap}
+.st.falha{background:var(--coral);color:#1a0806} .st.ok{background:var(--lime);color:var(--ink)} .st.manual{border:1px solid var(--muted);color:var(--body)}
+.st.pendente{border:1px solid var(--amber);color:var(--amber)} .st.nao_aplica{color:var(--faint);border:1px solid var(--line)}
+.cta{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:26px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;break-inside:avoid}
+.cta h3{margin:0 0 4px;font-size:21px;letter-spacing:-.02em} .cta h3 span{color:var(--lime)}
+.cta p{margin:0;color:var(--body);max-width:56ch}
+.btn{display:inline-block;background:var(--lime);color:var(--ink);font-weight:700;text-decoration:none;border-radius:10px;padding:12px 18px}
+footer{font:12px var(--mono);color:var(--faint);display:flex;flex-direction:column;gap:6px}
+@media (max-width:640px){.hero{grid-template-columns:1fr}.contagens{grid-template-columns:repeat(2,minmax(0,1fr))}.prioridade li{grid-template-columns:auto minmax(0,1fr)}.prioridade .cod{display:none}}
+@media print{
+  @page{size:A4;margin:0}
+  .wrap{display:block;max-width:none;padding:14mm 15mm;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .wrap>header,.wrap>section{margin-bottom:24px}
+  .area{display:block}
+  .area>h3{margin:18px 0 10px}
+  .achado{display:block;margin-bottom:12px;break-inside:auto}
+  .achado header,.achado h3{break-after:avoid}
+  .bloco,.ev li{break-inside:avoid}
+  .achado>*+*{margin-top:10px}
+  body{font-size:12.5px}
+  .copiar{display:none}
+  .prompt,.cta,.hero{break-inside:avoid}
+  h2,.area>h3{break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><b>&gt;_</b> saas-seguro · by @andrevale.dev</div>
+    <h1>Relatório de <span>segurança</span></h1>
+    <p class="sub">clinica-facil (app de exemplo) · 19 de outubro de 2026 às 16:12</p>
+    <div class="meta">
+      <span class="chip">Next.js</span><span class="chip">Supabase</span><span class="chip">Prisma</span><span class="chip">Stripe</span>
+      <span class="chip">12 arquivos analisados</span>
+      <span class="chip">revisado por IA</span>
+    </div>
+  </header>
+
+  <section class="hero" aria-label="Resumo">
+    <div class="ring" role="img" aria-label="Nota 0 de 100">
+      <svg width="132" height="132" viewBox="0 0 132 132"><circle cx="66" cy="66" r="52" fill="none" stroke="#242A26" stroke-width="12"/>
+      <circle cx="66" cy="66" r="52" fill="none" stroke="#FF7A6B" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 326.7256359733385" stroke-opacity="0"/></svg>
+      <div class="n"><b>0</b><span>de 100</span></div>
+    </div>
+    <div class="resumo-hero">
+      <h2>Nota de segurança: <span style="color:#FF7A6B">Crítico</span></h2>
+      <p class="sub">29 brecha(s) confirmada(s) no código.</p>
+      <div class="contagens">
+        <div class="cont critico"><b>7</b><span>Crítico</span></div><div class="cont alto"><b>11</b><span>Alto</span></div><div class="cont medio"><b>7</b><span>Médio</span></div><div class="cont baixo"><b>4</b><span>Baixo</span></div>
+      </div>
+      <p class="check-resumo">Checklist de 44 pontos: <b style="color:var(--lime)">6 aprovados</b> · 28 com falha · 8 para conferir manualmente · 2 não se aplicam.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Corrija primeiro <small>18 item(ns)</small></h2>
+    <p class="sub">Brechas críticas e altas, na ordem em que devem ser corrigidas.</p>
+    <ol class="prioridade">
+      <li><span class="badge critico">Crítico</span><span class="cod">SS-01</span><span class="t"><a href="#SS-01" style="color:var(--fg);text-decoration:none">Chave da OpenAI escrita no código</a><small>src/lib/ai.ts:2</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-02</span><span class="t"><a href="#SS-02" style="color:var(--fg);text-decoration:none">Segredo em variável pública ou em código que roda no navegador</a><small>.env:4</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-03</span><span class="t"><a href="#SS-03" style="color:var(--fg);text-decoration:none">Senha guardada ou comparada sem hash forte</a><small>src/app/api/login/route.ts:6</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-04</span><span class="t"><a href="#SS-04" style="color:var(--fg);text-decoration:none">Consultas por ID sem conferir o dono do registro</a><small>src/app/api/pacientes/[id]/route.ts:3</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-05</span><span class="t"><a href="#SS-05" style="color:var(--fg);text-decoration:none">Tabelas do Supabase sem Row Level Security</a><small>supabase/migrations/001_init.sql:1</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-06</span><span class="t"><a href="#SS-06" style="color:var(--fg);text-decoration:none">Webhook de pagamento sem verificação de assinatura</a><small>src/app/api/webhooks/stripe/route.ts:2</small></span></li><li><span class="badge critico">Crítico</span><span class="cod">SS-07</span><span class="t"><a href="#SS-07" style="color:var(--fg);text-decoration:none">Valor da cobrança vindo do front</a><small>src/app/api/checkout/route.ts:6</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-08</span><span class="t"><a href="#SS-08" style="color:var(--fg);text-decoration:none">Um arquivo .env já foi commitado no passado</a><small>.env</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-09</span><span class="t"><a href="#SS-09" style="color:var(--fg);text-decoration:none">Token de segurança gerado com Math.random</a><small>src/app/api/login/route.ts:9</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-10</span><span class="t"><a href="#SS-10" style="color:var(--fg);text-decoration:none">Rotas que parecem não exigir login</a><small>src/app/api/checkout/route.ts:3</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-11</span><span class="t"><a href="#SS-11" style="color:var(--fg);text-decoration:none">Token de sessão guardado no localStorage</a><small>src/components/Login.tsx:2</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-12</span><span class="t"><a href="#SS-12" style="color:var(--fg);text-decoration:none">Login sem limite de tentativas</a><small>src/app/api/login/route.ts</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-13</span><span class="t"><a href="#SS-13" style="color:var(--fg);text-decoration:none">Entradas sem validação no backend</a><small>src/app/api/checkout/route.ts:4</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-14</span><span class="t"><a href="#SS-14" style="color:var(--fg);text-decoration:none">Porta do banco publicada no docker-compose</a><small>docker-compose.yml:5</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-15</span><span class="t"><a href="#SS-15" style="color:var(--fg);text-decoration:none">URLs sem HTTPS na configuração</a><small>src/app/api/checkout/route.ts:7</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-16</span><span class="t"><a href="#SS-16" style="color:var(--fg);text-decoration:none">Stack trace ou modo debug exposto ao usuário</a><small>src/app/api/gerar/route.ts:9</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-17</span><span class="t"><a href="#SS-17" style="color:var(--fg);text-decoration:none">Rotas que chamam IA paga sem cota por usuário</a><small>src/app/api/gerar/route.ts:1</small></span></li><li><span class="badge alto">Alto</span><span class="cod">SS-18</span><span class="t"><a href="#SS-18" style="color:var(--fg);text-decoration:none">Dados sensíveis sem criptografia de campo</a><small>prisma.schema.prisma:8</small></span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Achados detalhados <small>29 no total</small></h2>
+    <p class="sub">Cada achado traz onde está, por que é perigoso, o passo a passo e um prompt pronto para corrigir.</p>
+    <div class="area"><h3>Segredos e chaves</h3>
+  <article class="achado sev-critico" id="SS-01">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-01 · item 1.1</span>
+      
+    </header>
+    <h3>Chave da OpenAI escrita no código</h3>
+    <p class="resumo">1 ocorrência(s) de chave da openai em arquivos do projeto.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/lib/ai.ts<b>:2</b></span><code>export const openai = new OpenAI({ apiKey: &quot;sk-pr…[redigido]&quot; });</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Quem tiver acesso ao repositório usa a chave da OpenAI do projeto e a fatura vem para você.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Revogue a chave no painel da OpenAI (platform.openai.com → API keys) e gere uma nova.</li><li>Em src/lib/ai.ts, troque a chave escrita por process.env.OPENAI_API_KEY.</li><li>Adicione OPENAI_API_KEY ao .env local e às variáveis de ambiente da Vercel.</li><li>Confirme que nenhuma outra chave sobrou no código rodando a varredura de novo.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/lib/ai.ts, remova a chave da OpenAI escrita no código e leia de process.env.OPENAI_API_KEY, falhando com erro claro se a variável não existir. Adicione OPENAI_API_KEY ao .env.example (sem valor). Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-critico" id="SS-02">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-02 · item 1.4</span>
+      
+    </header>
+    <h3>Segredo em variável pública ou em código que roda no navegador</h3>
+    <p class="resumo">Essas variáveis são embutidas no JavaScript entregue ao visitante.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">.env<b>:4</b></span><code>NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=eyJhb…[redigido]</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A service role do Supabase ignora a RLS. Com o prefixo NEXT_PUBLIC_, ela vai para o navegador e qualquer visitante lê e apaga todo o banco.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Gere uma nova service role no painel do Supabase (Settings → API → Reset) e trate a antiga como vazada.</li><li>Renomeie a variável para SUPABASE_SERVICE_ROLE_KEY (sem NEXT_PUBLIC_) no .env e na Vercel.</li><li>Use a service role só em rotas de servidor; no front, use apenas a anon key.</li><li>Rode a varredura de novo para confirmar.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Procure todos os usos de NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY no projeto. Renomeie para SUPABASE_SERVICE_ROLE_KEY e garanta que ela só seja usada em código de servidor (rotas de API). No front, use apenas a anon key. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-08">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-08 · item 1.3</span>
+      
+    </header>
+    <h3>Um arquivo .env já foi commitado no passado</h3>
+    <p class="resumo">As chaves que estavam nesse .env continuam acessíveis no histórico.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">.env</span><code>adicionado em algum commit do histórico</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Apagar a chave num commit novo não a remove dos commits antigos: quem clonar o repositório encontra.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Revogue primeiro cada chave encontrada no histórico.</li><li>Só depois, se quiser, reescreva o histórico (git filter-repo).</li><li>Ative um verificador de segredos antes do commit (gitleaks).</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Um arquivo .env já foi commitado no passado&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    <p class="nota">Revogue as chaves que estavam nesse arquivo na época.</p>
+  </article></div><div class="area"><h3>Autenticação e autorização</h3>
+  <article class="achado sev-critico" id="SS-03">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-03 · item 2.2</span>
+      
+    </header>
+    <h3>Senha guardada ou comparada sem hash forte</h3>
+    <p class="resumo">Possível senha em texto puro ou com hash rápido (SHA-256 sem sal).</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts<b>:6</b> <i>· comparação direta de senha</i></span><code>if (!user || user.password !== body.password) return Response.json({ error: &quot;inválido&quot; }, { status: 401 });</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>As senhas estão em texto puro no banco. Se o banco vazar, o atacante entra na conta dos seus usuários aqui e em outros serviços onde eles repetem a senha.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Instale o argon2 (npm i argon2).</li><li>No cadastro, salve await argon2.hash(senha) no campo password.</li><li>Em src/app/api/login/route.ts, troque user.password !== body.password por !(await argon2.verify(user.password, body.password)).</li><li>Migre os usuários antigos gerando o hash no próximo login.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/app/api/login/route.ts e no cadastro, troque o armazenamento e a comparação de senha em texto puro por argon2 (hash no cadastro, argon2.verify no login). Inclua a migração que gera o hash no próximo login de cada usuário. Não altere outras rotas e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-critico" id="SS-04">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-04 · item 2.4</span>
+      
+    </header>
+    <h3>Consultas por ID sem conferir o dono do registro</h3>
+    <p class="resumo">3 consulta(s) buscam, alteram ou apagam por ID sem filtro de usuário ou organização por perto.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/pacientes/[id]/route.ts<b>:3</b></span><code>const paciente = await prisma.paciente.findUnique({ where: { id: params.id } });</code></li>
+      <li><span class="loc">src/app/api/pacientes/[id]/route.ts<b>:7</b></span><code>await prisma.paciente.delete({ where: { id: params.id } });</code></li>
+      <li><span class="loc">src/app/api/webhooks/stripe/route.ts<b>:5</b></span><code>await prisma.assinatura.update({ where: { id: event.data.object.client_reference_id }, data: { status: &quot;ativa&quot; } });</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Qualquer usuário logado lê e apaga pacientes de outras clínicas trocando o ID em /api/pacientes/[id]. Como são dados de saúde, é o pior vazamento possível pela LGPD.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Em src/app/api/pacientes/[id]/route.ts, pegue o usuário logado no início do GET e do DELETE.</li><li>Troque findUnique({ where: { id } }) por findFirst({ where: { id, userId: user.id } }).</li><li>No DELETE, use deleteMany com o mesmo filtro e confira se apagou algo.</li><li>Responda 404 quando o paciente não pertencer ao usuário.</li><li>Teste com dois usuários: A não pode abrir nem apagar o paciente de B.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/app/api/pacientes/[id]/route.ts, exija login e filtre GET e DELETE pelo usuário logado (where: { id, userId: user.id }), respondendo 404 quando o paciente não pertencer a ele. Crie um teste com dois usuários provando que um não acessa o paciente do outro. Mostre o diff antes de commitar.</p></div>
+    <p class="nota">Confirme se a posse é conferida em outro lugar (por exemplo, numa checagem logo depois da busca).</p>
+  </article>
+  <article class="achado sev-critico" id="SS-05">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-05 · item 2.5</span>
+      
+    </header>
+    <h3>Tabelas do Supabase sem Row Level Security</h3>
+    <p class="resumo">1 tabela(s) criadas nas migrations sem &quot;enable row level security&quot;.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">supabase/migrations/001_init.sql<b>:1</b></span><code>create table public.pacientes (id uuid primary key, nome text, cpf text, diagnostico text, user_id uuid);</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A tabela pacientes não tem RLS. Qualquer pessoa com a anon key (que está no front) lê nome, CPF e diagnóstico de todos os pacientes.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie uma migration com: alter table public.pacientes enable row level security;</li><li>Crie policies de select, insert, update e delete usando auth.uid() = user_id.</li><li>Aplique no projeto (supabase db push) e confira no painel em Database → Tables.</li><li>Teste com a anon key sem login: a consulta deve voltar vazia.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Crie uma nova migration em supabase/migrations que ative a RLS na tabela public.pacientes e crie policies de select, insert, update e delete usando auth.uid() = user_id. Mostre o SQL para eu revisar antes de aplicar.</p></div>
+    <p class="nota">Confirme no painel (Database → Tables) se a RLS não foi ativada manualmente por lá.</p>
+  </article>
+  <article class="achado sev-alto" id="SS-09">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-09 · item 2.1</span>
+      
+    </header>
+    <h3>Token de segurança gerado com Math.random</h3>
+    <p class="resumo">Math.random é previsível: tokens de recuperação ou convite podem ser adivinhados.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts<b>:9</b></span><code>const reset = Math.random().toString(36).slice(2);</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Autenticação feita na mão costuma falhar em detalhes, como token de recuperação gerado com Math.random.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Troque por crypto.randomBytes(32).toString(&quot;hex&quot;) ou crypto.randomUUID().</li><li>Faça o token expirar e valer uma vez só.</li><li>Invalide os tokens antigos já emitidos.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Token de segurança gerado com Math.random&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-10">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-10 · item 2.3</span>
+      
+    </header>
+    <h3>Rotas que parecem não exigir login</h3>
+    <p class="resumo">3 rota(s) ou ação(ões) sem checagem de usuário visível no arquivo.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/checkout/route.ts<b>:3</b></span><code>export async function POST(req: Request) {</code></li>
+      <li><span class="loc">src/app/api/gerar/route.ts<b>:3</b></span><code>export async function POST(req: Request) {</code></li>
+      <li><span class="loc">src/app/api/pacientes/[id]/route.ts<b>:2</b></span><code>export async function GET(req: Request, { params }: { params: { id: string } }) {</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>As rotas /api/pacientes/[id], /api/gerar e /api/checkout respondem a qualquer pessoa, sem login.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie um helper getUsuario(req) que lê a sessão e lança 401 se não houver usuário.</li><li>Chame no início de cada rota listada.</li><li>Ou proteja /api/* no middleware.ts, deixando públicas só login, webhooks e health.</li><li>Teste chamando as rotas sem estar logado: devem responder 401.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Crie um middleware.ts que exija sessão em todas as rotas /api/*, exceto /api/login, /api/webhooks/* e /api/health. Confira que /api/pacientes/[id], /api/gerar e /api/checkout passam a responder 401 sem login. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-11">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-11 · item 2.6</span>
+      
+    </header>
+    <h3>Token de sessão guardado no localStorage</h3>
+    <p class="resumo">Qualquer script injetado na página consegue ler e roubar a sessão.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/components/Login.tsx<b>:2</b></span><code>export function salvar(token: string) { localStorage.setItem(&quot;token&quot;, token); }</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Token no localStorage é lido por qualquer script injetado; token sem expiração vale para sempre se for roubado.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Guarde a sessão em cookie HttpOnly, Secure e SameSite.</li><li>Defina expiração curta no token de acesso.</li><li>Invalide o refresh token no logout.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Token de sessão guardado no localStorage&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-12">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-12 · item 2.7</span>
+      
+    </header>
+    <h3>Login sem limite de tentativas</h3>
+    <p class="resumo">Nenhuma biblioteca de rate limit no projeto e há rotas próprias de login ou recuperação de senha.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts</span><code>rota de login ou recuperação sem rate limit</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A rota /api/login aceita tentativas ilimitadas: um script testa milhares de senhas por minuto.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Instale @upstash/ratelimit (funciona bem na Vercel).</li><li>Limite /api/login a 5 tentativas por minuto por IP e por e-mail.</li><li>Responda 429 quando passar do limite.</li><li>Aplique o mesmo na recuperação de senha.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Adicione rate limit em src/app/api/login/route.ts com @upstash/ratelimit: 5 tentativas por minuto por IP e por e-mail, respondendo 429. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-medio" id="SS-20">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-20 · item 2.6</span>
+      
+    </header>
+    <h3>Token JWT sem expiração</h3>
+    <p class="resumo">Um token roubado continua válido para sempre.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts<b>:8</b></span><code>const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET!);</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Token no localStorage é lido por qualquer script injetado; token sem expiração vale para sempre se for roubado.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Guarde a sessão em cookie HttpOnly, Secure e SameSite.</li><li>Defina expiração curta no token de acesso.</li><li>Invalide o refresh token no logout.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Token JWT sem expiração&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div><div class="area"><h3>Banco de dados e entradas</h3>
+  <article class="achado sev-alto" id="SS-13">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-13 · item 3.2</span>
+      
+    </header>
+    <h3>Entradas sem validação no backend</h3>
+    <p class="resumo">Nenhuma biblioteca de validação nas dependências.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/checkout/route.ts<b>:4</b></span><code>const body = await req.json();</code></li>
+      <li><span class="loc">src/app/api/gerar/route.ts<b>:4</b></span><code>const { texto } = await req.json();</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Sem validação, o usuário manda campos extras (role, plano, preço) e o banco grava.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Valide o body de toda rota com schema (zod, class-validator, yup).</li><li>Ative whitelist para descartar campos desconhecidos.</li><li>Nunca repasse o body inteiro para create ou update.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Entradas sem validação no backend&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-14">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-14 · item 3.4</span>
+      
+    </header>
+    <h3>Porta do banco publicada no docker-compose</h3>
+    <p class="resumo">Em uma VPS, essa porta fica acessível pela internet, mesmo com o firewall ativo.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">docker-compose.yml<b>:5</b> <i>· postgres:16</i></span><code>- &quot;5432:5432&quot;</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Porta de banco aberta recebe tentativas de senha o dia inteiro. No Docker, &quot;5432:5432&quot; publica a porta mesmo com firewall.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Remova o mapeamento de portas do banco no docker-compose.</li><li>Se precisar acessar de fora, use 127.0.0.1:5432:5432 e túnel SSH.</li><li>Em banco gerenciado, restrinja por IP.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Porta do banco publicada no docker-compose&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-medio" id="SS-21">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-21 · item 3.5</span>
+      
+    </header>
+    <h3>Aplicação conectando ao banco com usuário administrador</h3>
+    <p class="resumo">O usuário da conexão parece ser o dono do banco.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">.env<b>:1</b></span><code>DATABASE_URL=postgresql://postgres.abcd:•••••@aws-0-sa-east-1.pooler.supabase.com:5432/postgres</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Se a aplicação for invadida, um usuário de banco com poder de dono permite apagar tudo.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie um usuário só para a aplicação, com leitura e escrita nos dados.</li><li>Rode as migrations com outro usuário.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Aplicação conectando ao banco com usuário administrador&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    <p class="nota">No Supabase, o usuário padrão da connection string é o postgres. Prefira a API com RLS ou um usuário com permissões restritas.</p>
+  </article>
+  <article class="achado sev-medio" id="SS-22">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-22 · item 3.6</span>
+      
+    </header>
+    <h3>Consultas que podem devolver senha ou token na resposta</h3>
+    <p class="resumo">Busca em tabela com campo de senha sem escolher os campos devolvidos.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts<b>:5</b></span><code>const user = await prisma.user.findFirst({ where: { email: body.email } });</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Devolver o objeto inteiro do banco vaza hash de senha, tokens e dados internos, mesmo que a tela não mostre.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Escolha os campos com select ou um DTO de resposta.</li><li>Remova campos sensíveis antes de responder.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Consultas que podem devolver senha ou token na resposta&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div><div class="area"><h3>Infra e deploy</h3>
+  <article class="achado sev-alto" id="SS-15">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-15 · item 4.2</span>
+      
+    </header>
+    <h3>URLs sem HTTPS na configuração</h3>
+    <p class="resumo">Dados trafegam sem criptografia nessas chamadas.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/checkout/route.ts<b>:7</b></span><code>mode: &quot;payment&quot;, success_url: &quot;http://app.clinicafacil.com.br/ok&quot;,</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Em HTTP, senha e cookie trafegam em texto aberto.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Troque URLs http:// de produção por https://.</li><li>Redirecione HTTP para HTTPS no servidor ou no proxy.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;URLs sem HTTPS na configuração&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-16">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-16 · item 4.7</span>
+      
+    </header>
+    <h3>Stack trace ou modo debug exposto ao usuário</h3>
+    
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/gerar/route.ts<b>:9</b></span><code>return Response.json({ error: err.stack }, { status: 500 });</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Stack trace e mensagem do banco na resposta são um mapa para quem está tentando invadir.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Responda mensagem genérica no erro 500.</li><li>Mande o detalhe só para o log.</li><li>Desligue o modo debug e proteja o Swagger em produção.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Stack trace ou modo debug exposto ao usuário&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-baixo" id="SS-27">
+    <header>
+      <span class="badge baixo">Baixo</span>
+      <span class="cod">SS-27 · item 4.6</span>
+      
+    </header>
+    <h3>Front sem headers de segurança configurados</h3>
+    <p class="resumo">Nenhum X-Frame-Options ou Content-Security-Policy no next.config, vercel.json ou middleware.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Sem headers como X-Frame-Options e Content-Security-Policy, o navegador não bloqueia ataques comuns.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Use helmet na API (Express/NestJS).</li><li>Configure headers no next.config ou no vercel.json.</li><li>Comece a CSP em modo report-only.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Front sem headers de segurança configurados&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div><div class="area"><h3>APIs, pagamentos e limites</h3>
+  <article class="achado sev-critico" id="SS-06">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-06 · item 5.3</span>
+      
+    </header>
+    <h3>Webhook de pagamento sem verificação de assinatura</h3>
+    <p class="resumo">Qualquer pessoa pode simular um pagamento aprovado chamando essa rota.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/webhooks/stripe/route.ts<b>:2</b></span><code>export async function POST(req: Request) {</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>O webhook aceita qualquer requisição. Alguém pode mandar um evento falso de checkout.session.completed e ativar a assinatura sem pagar.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Em src/app/api/webhooks/stripe/route.ts, leia o corpo bruto com await req.text().</li><li>Valide com stripe.webhooks.constructEvent(corpo, req.headers.get(&#39;stripe-signature&#39;), process.env.STRIPE_WEBHOOK_SECRET).</li><li>Responda 400 se a assinatura for inválida.</li><li>Guarde o event.id e ignore eventos repetidos.</li><li>Teste com a Stripe CLI: stripe listen --forward-to localhost:3000/api/webhooks/stripe.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/app/api/webhooks/stripe/route.ts, valide a assinatura do Stripe com stripe.webhooks.constructEvent usando o corpo bruto (req.text()) e STRIPE_WEBHOOK_SECRET, respondendo 400 se for inválida. Torne o processamento idempotente pelo event.id. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-critico" id="SS-07">
+    <header>
+      <span class="badge critico">Crítico</span>
+      <span class="cod">SS-07 · item 5.4</span>
+      
+    </header>
+    <h3>Valor da cobrança vindo do front</h3>
+    <p class="resumo">Se o valor vem da requisição, o usuário troca o preço e paga quanto quiser.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/checkout/route.ts<b>:6</b></span><code>line_items: [{ price_data: { currency: &quot;brl&quot;, product_data: { name: body.plano }, unit_amount: body.amount }, quantity: 1 }],</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>O valor do checkout vem do body. O usuário troca amount para 1 e assina o plano por um centavo.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie uma tabela fixa de planos no servidor (ex.: { pro: &#39;price_123&#39; }).</li><li>Em src/app/api/checkout/route.ts, receba só o id do plano e use line_items: [{ price: PLANOS[plano], quantity: 1 }].</li><li>Recuse planos fora da tabela com 400.</li><li>Libere o acesso só pelo webhook verificado, nunca pelo retorno do checkout.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/app/api/checkout/route.ts, pare de usar body.amount. Crie uma tabela fixa de planos com os price IDs do Stripe, receba só o id do plano, valide contra a tabela e crie a sessão com price. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-alto" id="SS-17">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-17 · item 5.2</span>
+      
+    </header>
+    <h3>Rotas que chamam IA paga sem cota por usuário</h3>
+    <p class="resumo">Um usuário ou script pode gerar uma fatura alta chamando essas rotas em loop.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/gerar/route.ts<b>:1</b></span><code>import OpenAI from &quot;openai&quot;;</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A rota /api/gerar chama o GPT-4o sem login nem cota. Um script em loop gera uma fatura alta em poucas horas.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Exija login na rota.</li><li>Crie uma cota diária por usuário (ex.: 20 gerações no plano grátis).</li><li>Limite o tamanho do texto de entrada.</li><li>Configure um limite de gasto no painel da OpenAI.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Em src/app/api/gerar/route.ts, exija login, limite o texto de entrada a 4.000 caracteres e crie uma cota diária por usuário (20 no plano grátis), respondendo 429 quando acabar. Mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-medio" id="SS-23">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-23 · item 5.1</span>
+      
+    </header>
+    <h3>API sem nenhum rate limit</h3>
+    <p class="resumo">5 arquivo(s) de rota e nenhuma biblioteca de rate limit no projeto.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Sem limite, qualquer script derruba a API ou consome os seus recursos pagos.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Aplique um rate limit global na API.</li><li>Use limites menores nas rotas caras.</li><li>Atrás de proxy, identifique o visitante pelo IP real.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;API sem nenhum rate limit&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div><div class="area"><h3>Dados, LGPD e monitoramento</h3>
+  <article class="achado sev-alto" id="SS-18">
+    <header>
+      <span class="badge alto">Alto</span>
+      <span class="cod">SS-18 · item 6.4</span>
+      
+    </header>
+    <h3>Dados sensíveis sem criptografia de campo</h3>
+    <p class="resumo">Campos com dados pessoais sensíveis: cpf, diagnostico.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">prisma.schema.prisma<b>:8</b></span><code>cpf String</code></li>
+      <li><span class="loc">prisma.schema.prisma<b>:9</b></span><code>diagnostico String</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Dados de saúde, documentos e biometria têm proteção reforçada na LGPD; um vazamento é o pior cenário.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Criptografe os campos mais sensíveis com chave guardada fora do banco.</li><li>Restrinja o acesso por perfil.</li><li>Registre quem acessou cada registro.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Dados sensíveis sem criptografia de campo&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    <p class="nota">Confirme se esses campos guardam dados sensíveis de verdade (saúde, documentos, biometria).</p>
+  </article>
+  <article class="achado sev-medio" id="SS-24">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-24 · item 6.3</span>
+      
+    </header>
+    <h3>Usuário não consegue excluir a própria conta</h3>
+    <p class="resumo">Não encontrei rota ou ação de exclusão de conta.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A LGPD garante ao titular o direito de pedir a eliminação dos dados.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie a exclusão de conta: cancela assinatura, apaga arquivos e dados pessoais.</li><li>Anonimize o que precisa ficar por obrigação legal.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Usuário não consegue excluir a própria conta&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-medio" id="SS-25">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-25 · item 6.5</span>
+      
+    </header>
+    <h3>Logs gravando senha, token ou dados pessoais</h3>
+    
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">src/app/api/login/route.ts<b>:7</b></span><code>console.log(&quot;login&quot;, body.email, body.password);</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Log costuma ter menos proteção que o banco e vai para serviços externos.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Remova logs de body, senha, token e documentos.</li><li>Configure redact no logger.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Logs gravando senha, token ou dados pessoais&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-baixo" id="SS-29">
+    <header>
+      <span class="badge baixo">Baixo</span>
+      <span class="cod">SS-29 · item 6.2</span>
+      
+    </header>
+    <h3>Sem política de privacidade ou termos de uso</h3>
+    <p class="resumo">Nenhuma página ou link de privacidade e termos encontrado.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>A LGPD exige transparência sobre quais dados você coleta e para quê.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Publique a política de privacidade e os termos.</li><li>Coloque o link no rodapé e no cadastro.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Sem política de privacidade ou termos de uso&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-baixo" id="SS-30">
+    <header>
+      <span class="badge baixo">Baixo</span>
+      <span class="cod">SS-30 · item 6.6</span>
+      
+    </header>
+    <h3>Sem monitoramento de erros nem rota de health check</h3>
+    <p class="resumo">Ninguém é avisado quando o app cai ou quebra.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Se é o cliente que avisa que o app caiu, você já perdeu a confiança dele.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie uma rota /health.</li><li>Use um monitor externo com alerta no celular.</li><li>Capture erros com Sentry ou similar.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Sem monitoramento de erros nem rota de health check&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div><div class="area"><h3>Uso de agentes de IA</h3>
+  <article class="achado sev-medio" id="SS-26">
+    <header>
+      <span class="badge medio">Médio</span>
+      <span class="cod">SS-26 · item 7.4</span>
+      
+    </header>
+    <h3>Agente pode ler o .env do projeto</h3>
+    <p class="resumo">Nada impede o agente de ler as credenciais do .env.</p>
+    <div class="bloco"><div class="lab">Onde está</div><ul class="ev">
+      <li><span class="loc">.env</span><code>arquivo de variáveis acessível ao agente</code></li></ul></div>
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Se o agente enxerga o .env de produção, um comando errado roda contra os dados reais.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Adicione em .claude/settings.json: &quot;permissions&quot;: { &quot;deny&quot;: [&quot;Read(./.env)&quot;, &quot;Read(./.env.*)&quot;] }.</li><li>Mantenha chaves de produção fora da sua máquina.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Agente pode ler o .env do projeto&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article>
+  <article class="achado sev-baixo" id="SS-31">
+    <header>
+      <span class="badge baixo">Baixo</span>
+      <span class="cod">SS-31 · item 7.1</span>
+      
+    </header>
+    <h3>Projeto sem CLAUDE.md ou AGENTS.md</h3>
+    <p class="resumo">O agente não tem regras de segurança escritas para seguir.</p>
+    
+    <div class="bloco"><div class="lab">Por que é perigoso</div><p>Sem regras escritas, o agente repete os mesmos erros a cada sessão.</p></div>
+    <div class="bloco"><div class="lab">Passo a passo para corrigir</div><ol class="passos"><li>Crie ou complete o CLAUDE.md / AGENTS.md com regras de segurança do projeto.</li></ol></div>
+    <div class="prompt"><div class="lab">Prompt para o Claude Code ou Codex corrigir <button class="copiar" type="button">Copiar</button></div><p>Corrija o problema &quot;Projeto sem CLAUDE.md ou AGENTS.md&quot; nos arquivos indicados no relatório de segurança, seguindo o passo a passo. Faça a menor mudança possível e mostre o diff antes de commitar.</p></div>
+    
+  </article></div>
+  </section>
+
+  <section>
+    <h2>Verificação manual <small>8 item(ns)</small></h2>
+    <p class="sub">Estes pontos dependem de painéis e servidores fora do código. Confira cada um e marque.</p>
+    <ul class="manuais">
+      <li><span class="box"></span><span class="id">1.6</span><div><b>Cada chave com a menor permissão possível</b><span>Revise no painel de cada provedor (Stripe, GitHub, Cloudflare, AWS, Supabase) se as chaves têm só as permissões necessárias.</span></div></li><li><span class="box"></span><span class="id">4.1</span><div><b>Domínio atrás de proxy com WAF (ex.: Cloudflare)</b><span>Confira no painel de DNS se o domínio passa por um proxy com WAF. Em hospedagens como Vercel e Netlify, a borda já cumpre parte desse papel.</span></div></li><li><span class="box"></span><span class="id">4.3</span><div><b>Servidor com SSH só por chave e firewall fechado</b><span>Se você usa VPS, rode no servidor: sudo sshd -T | grep -E &quot;passwordauthentication|permitrootlogin&quot; e sudo ufw status. Em hospedagem gerenciada (Vercel, Render, Railway), não se aplica.</span></div></li><li><span class="box"></span><span class="id">5.5</span><div><b>Alertas e teto de gasto nos serviços pagos</b><span>Configure alertas de gasto na hospedagem, no provedor de IA, no banco e no serviço de e-mail.</span></div></li><li><span class="box"></span><span class="id">6.1</span><div><b>Backup automático, fora do servidor e testado</b><span>Confirme onde está o último backup do banco, de quando é e quando a restauração foi testada.</span></div></li><li><span class="box"></span><span class="id">7.3</span><div><b>Diff revisado antes de aceitar</b><span>Hábito: rode git diff --stat antes de cada commit e leia com atenção o que tocar em autenticação, pagamentos e package.json.</span></div></li><li><span class="box"></span><span class="id">7.5</span><div><b>Pacotes sugeridos pela IA conferidos</b><span>O projeto tem 7 dependência(s). Confira as que você não conhece antes de instalar novas.</span></div></li><li><span class="box"></span><span class="id">7.6</span><div><b>Revisão de segurança antes de cada deploy</b><span>Rode esta skill de novo antes de cada deploy importante.</span></div></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Checklist completo <small>44 pontos</small></h2>
+    <div class="tabela"><table>
+      <thead><tr><th>Item</th><th>Ponto verificado</th><th>Status</th><th>Observação</th></tr></thead>
+      <tbody><tr><td class="id">1.1</td><td>Chaves, senhas e tokens escritos no código</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">1.2</td><td>Arquivo .env fora do Git</td><td><span class="st ok">Aprovado</span></td><td>.env ignorado pelo Git e nenhum .env versionado.</td></tr><tr><td class="id">1.3</td><td>Histórico do Git sem segredos vazados</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">1.4</td><td>Segredos fora das variáveis públicas do front</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">1.5</td><td>Chaves separadas para desenvolvimento e produção</td><td><span class="st ok">Aprovado</span></td><td>Revisado no código pelo agente.</td></tr><tr><td class="id">1.6</td><td>Cada chave com a menor permissão possível</td><td><span class="st manual">Manual</span></td><td>Revise no painel de cada provedor (Stripe, GitHub, Cloudflare, AWS, Supabase) se as chaves têm só as permissões necessárias.</td></tr><tr><td class="id">2.1</td><td>Login com biblioteca consolidada, sem token previsível</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.2</td><td>Senhas com hash forte (argon2 ou bcrypt)</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.3</td><td>Toda rota da API exige login por padrão</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.4</td><td>Toda consulta confere o dono do recurso</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.5</td><td>Supabase com RLS e Firebase com regras fechadas</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.6</td><td>Sessão em cookie protegido e token com expiração</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">2.7</td><td>Limite de tentativas no login e na recuperação de senha</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">3.1</td><td>Consultas sem SQL concatenado</td><td><span class="st ok">Aprovado</span></td><td>Nenhuma consulta montada por concatenação encontrada.</td></tr><tr><td class="id">3.2</td><td>Toda entrada validada no backend</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">3.3</td><td>Uploads com limite, tipo conferido e armazenamento privado</td><td><span class="st nao_aplica">Não se aplica</span></td><td>Revise tamanho máximo, tipo e privacidade dos uploads, se houver.</td></tr><tr><td class="id">3.4</td><td>Banco sem acesso público pela internet</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">3.5</td><td>Usuário do banco da aplicação sem poder de administrador</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">3.6</td><td>Respostas da API só com os campos necessários</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">4.1</td><td>Domínio atrás de proxy com WAF (ex.: Cloudflare)</td><td><span class="st manual">Manual</span></td><td>Confira no painel de DNS se o domínio passa por um proxy com WAF. Em hospedagens como Vercel e Netlify, a borda já cumpre parte desse papel.</td></tr><tr><td class="id">4.2</td><td>HTTPS em tudo</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">4.3</td><td>Servidor com SSH só por chave e firewall fechado</td><td><span class="st manual">Manual</span></td><td>Se você usa VPS, rode no servidor: sudo sshd -T | grep -E &quot;passwordauthentication|permitrootlogin&quot; e sudo ufw status. Em hospedagem gerenciada (Vercel, Render, Railway), não se aplica.</td></tr><tr><td class="id">4.4</td><td>Dependências sem vulnerabilidades graves</td><td><span class="st nao_aplica">Não se aplica</span></td><td>Nenhum gerenciador de pacotes encontrado.</td></tr><tr><td class="id">4.5</td><td>CORS liberando só os seus domínios</td><td><span class="st ok">Aprovado</span></td><td>Nenhuma configuração de CORS aberta encontrada.</td></tr><tr><td class="id">4.6</td><td>Headers de segurança configurados</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">4.7</td><td>Erros em produção sem detalhes internos</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">4.8</td><td>Ambiente de produção separado do de testes</td><td><span class="st ok">Aprovado</span></td><td>Revisado no código pelo agente.</td></tr><tr><td class="id">5.1</td><td>Rate limiting nas rotas da API</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">5.2</td><td>Rotas de IA paga com cota por usuário</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">5.3</td><td>Webhooks de pagamento com assinatura verificada</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">5.4</td><td>Preço e plano decididos no backend</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">5.5</td><td>Alertas e teto de gasto nos serviços pagos</td><td><span class="st manual">Manual</span></td><td>Configure alertas de gasto na hospedagem, no provedor de IA, no banco e no serviço de e-mail.</td></tr><tr><td class="id">6.1</td><td>Backup automático, fora do servidor e testado</td><td><span class="st manual">Manual</span></td><td>Confirme onde está o último backup do banco, de quando é e quando a restauração foi testada.</td></tr><tr><td class="id">6.2</td><td>Política de privacidade e termos de uso publicados</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">6.3</td><td>Usuário consegue excluir a própria conta</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">6.4</td><td>Dados sensíveis com criptografia e acesso restrito</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">6.5</td><td>Logs sem senhas, tokens ou dados pessoais</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">6.6</td><td>Monitoramento de erros e de disponibilidade</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">7.1</td><td>CLAUDE.md ou AGENTS.md com regras de segurança</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">7.2</td><td>Projeto versionado no Git</td><td><span class="st ok">Aprovado</span></td><td>Projeto versionado no Git.</td></tr><tr><td class="id">7.3</td><td>Diff revisado antes de aceitar</td><td><span class="st manual">Manual</span></td><td>Hábito: rode git diff --stat antes de cada commit e leia com atenção o que tocar em autenticação, pagamentos e package.json.</td></tr><tr><td class="id">7.4</td><td>Agente sem acesso a credenciais de produção</td><td><span class="st falha">Falha</span></td><td></td></tr><tr><td class="id">7.5</td><td>Pacotes sugeridos pela IA conferidos</td><td><span class="st manual">Manual</span></td><td>O projeto tem 7 dependência(s). Confira as que você não conhece antes de instalar novas.</td></tr><tr><td class="id">7.6</td><td>Revisão de segurança antes de cada deploy</td><td><span class="st manual">Manual</span></td><td>Rode esta skill de novo antes de cada deploy importante.</td></tr></tbody>
+    </table></div>
+  </section>
+
+  <section class="cta">
+    <div>
+      <h3>Quer o passo a passo <span>completo</span>?</h3>
+      <p>O checklist gratuito e o Guia de implementação explicam os 44 pontos com exemplos de código e prompts prontos para o Claude Code.</p>
+    </div>
+    <a class="btn" href="https://checklist-saas-seguro-lp.vercel.app/?utm_source=skill-saas-seguro&utm_medium=relatorio" target="_blank" rel="noopener">Baixar o checklist grátis</a>
+  </section>
+
+  <footer>
+    <span>Gerado pela skill saas-seguro · github.com/andrefelipevsilva/skill-saas-seguro · @andrevale.dev no Instagram</span>
+    <span>Varredura automatizada com revisão por IA. Não substitui um teste de invasão profissional. Este arquivo pode conter trechos sensíveis do seu código: não publique.</span>
+  </footer>
+</div>
+<script>
+document.querySelectorAll(".copiar").forEach(function (b) {
+  b.addEventListener("click", function () {
+    var t = b.closest(".prompt").querySelector("p").innerText;
+    var ok = function () { b.textContent = "Copiado"; setTimeout(function () { b.textContent = "Copiar"; }, 1600); };
+    if (navigator.clipboard) navigator.clipboard.writeText(t).then(ok, function () {});
+  });
+});
+</script>
+</body>
+</html>
